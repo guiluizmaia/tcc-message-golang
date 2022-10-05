@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  message:
+    image: rabbitmq:3-management-alpine
+    container_name: message
+    ports:
+      - 5672:5672   # for sender and consumer connections
+      - 15672:15672 # for serve RabbitMQ GUI
+    restart: always
+    networks:
+      - network-message
+
+  server:
+    build: ./server/
+    volumes:
+      - ./server:/go/src
+    ports:
+      - "8080:8080"
+    networks:
+      - network-message
+    depends_on:
+      - message
+      # - user
+  
+  # user:
+  #    build: ./user/
+  #    volumes:
+  #      - ./user:/go/src
+  #    networks:
+  #      - network-message
+  #    depends_on:
+  #      - message
+  #      - server
+
+networks:
+  network-message:
+    driver: bridge
